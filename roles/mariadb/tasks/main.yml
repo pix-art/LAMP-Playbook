@@ -1,0 +1,31 @@
+# roles/database/tasks/main.yml
+---
+- name: 1. Install MariaDB server package
+  apt: name=mariadb-server state=present
+
+- name: 2. Start Mysql Service
+  service: name=mysql state=started enabled=true
+
+- name: Install python Mysql package #required for mysql_db tasks
+  apt: name=python-mysqldb state=present
+
+- name: 3. Create a new database
+  mysql_db: name=demo state=present collation=utf8_general_ci
+
+- name: 4. Create a database user
+  mysql_user: name=demo password=demo priv=*.*:ALL host=localhost state=present
+
+- name: 5a. Copy sample data
+  copy: src=dump.sql dest=/tmp/dump.sql
+  
+- name: 5b. Insert sample data
+  shell: cat /tmp/dump.sql | mysql -u demo -pdemo demo
+
+- name: 6a. Install MySQL extension for PHP
+  apt: name=php5-mysql state=present
+
+- name: 6b. Restart Apache
+  service: name=apache2 state=restarted
+
+- name: 7. install Hello World PHP script with database
+  copy: src=db.php dest=/var/www/html/db.php mode=0664

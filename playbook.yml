@@ -1,0 +1,6 @@
+# playbook.yml
+---
+- hosts: all
+  roles:
+    - apache2
+    - mariadb
